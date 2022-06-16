@@ -42,13 +42,13 @@ class ProductController extends Controller{
 
             $newProduct = $this->product->create($productData);
 
-            return response()->json(ApiSuccess::successMessage('Loja cadastrada com sucesso!', $newProduct), 201);
+            return response()->json(ApiSuccess::successMessage('Produto cadastrado com sucesso!', $newProduct), 201);
         } catch(Exception $e){
             if(config('app.debug')){
                 return response()->json(ApiError::errorMessage($e->getMessage(), 2010), 500);
             } 
 
-            return response()->json(ApiError::errorMessage('Erro ao cadastrar uma nova loja!', 500), 500);
+            return response()->json(ApiError::errorMessage('Erro ao cadastrar um novo produto!', 500), 500);
         }
     }
 
@@ -58,9 +58,16 @@ class ProductController extends Controller{
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
-        //
+    public function show($id){
+        $product = $this->product
+                      ->with('store')
+                      ->find($id);
+
+        if(!$product){
+            return response()->json(ApiError::errorMessage('Nenhum produto foi encontrado!', 404), 404);
+        }
+
+        return response()->json(ApiSuccess::successMessage('Produto encontrado!', $product), 200);
     }
 
     /**
