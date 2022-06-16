@@ -44,9 +44,24 @@ class StoreController extends Controller{
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
-        //
+    public function show($id){
+        $store = $this->store->find($id);
+
+        if(!$store){
+            $data = [
+                'data' => [
+                    'message' => 'Nenhuma loja foi encontrada!'
+                ]
+            ];
+
+            return response()->json($data, 404);
+        }
+
+        $data = [
+            'data' => $store
+        ];
+
+        return response()->json($data, 200);
     }
 
     /**
