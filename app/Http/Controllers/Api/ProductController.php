@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Api\ApiError;
 use App\Api\ApiSuccess;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use Exception;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller{
@@ -34,9 +36,20 @@ class ProductController extends Controller{
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        //
+    public function store(Request $request){
+        try{
+            $productData = $request->all();
+
+            $newProduct = $this->product->create($productData);
+
+            return response()->json(ApiSuccess::successMessage('Loja cadastrada com sucesso!', $newProduct), 201);
+        } catch(Exception $e){
+            if(config('app.debug')){
+                return response()->json(ApiError::errorMessage($e->getMessage(), 2010), 500);
+            } 
+
+            return response()->json(ApiError::errorMessage('Erro ao cadastrar uma nova loja!', 500), 500);
+        }
     }
 
     /**
