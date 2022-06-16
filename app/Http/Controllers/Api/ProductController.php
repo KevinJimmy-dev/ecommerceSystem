@@ -2,19 +2,30 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Api\ApiSuccess;
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
-class ProductController extends Controller
-{
+class ProductController extends Controller{
+
+    private $product;
+
+    public function __construct(Product $product){
+        $this->product = $product;
+    }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        //
+    public function index(){
+        $products = $this->product
+                       ->with('store')
+                       ->paginate(10);
+
+        return response()->json(ApiSuccess::successMessage('Produtos e suas respectivas lojas encontradas!', $products), 200);
     }
 
     /**
