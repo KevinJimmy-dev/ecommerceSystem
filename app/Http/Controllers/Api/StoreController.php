@@ -52,7 +52,7 @@ class StoreController extends Controller{
             return response()->json($data, 201);
         } catch(Exception $e){
             if(config('app.debug')){
-                return response()->json(ApiError::errorMessage($e->getMessage(), 1010));
+                return response()->json(ApiError::errorMessage($e->getMessage(), 1010), 500);
             } 
 
             return response()->json(ApiError::errorMessage('Erro ao cadastrar uma nova loja!', 500), 500);
@@ -88,7 +88,28 @@ class StoreController extends Controller{
      */
     public function update(Request $request, $id)
     {
-        //
+        try{
+            $storeData = $request->all();
+
+            $store = $this->store->find($id);
+
+            $store->update($storeData);
+
+            $data = ['data' => 
+                [
+                    'msg' => 'Loja atualizada com sucesso!',
+                    'product' => $store
+                ]
+            ];
+
+            return response()->json($data, 201);
+        } catch(Exception $e){
+            if(config('app.debug')){
+                return response()->json(ApiError::errorMessage($e->getMessage(), 1011), 500);
+            }
+
+            return response()->json(ApiError::errorMessage('Erro ao atualizar a loja!', 1011), 500);
+        }
     }
 
     /**
