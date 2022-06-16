@@ -3,18 +3,28 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Store;
 use Illuminate\Http\Request;
 
-class StoreController extends Controller
-{
+class StoreController extends Controller{
+
+    private $store;
+
+    public function __construct(Store $store){
+        $this->store = $store;
+    }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        //
+    public function index(){
+        $data = [
+            'data' => $this->store->paginate(5)
+        ];
+
+        return response()->json($data, 200);
     }
 
     /**
