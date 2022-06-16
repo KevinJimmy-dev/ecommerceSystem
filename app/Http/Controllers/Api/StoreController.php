@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Api\ApiError;
+use App\Api\ApiSuccess;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreRequest;
 use App\Models\Store;
@@ -23,11 +24,11 @@ class StoreController extends Controller{
      * @return \Illuminate\Http\Response
      */
     public function index(){
-        $data = [
-            'data' => $this->store->paginate(5)
-        ];
+        $stores = $this->store
+                       ->with('products')
+                       ->paginate(10);
 
-        return response()->json($data, 200);
+        return response()->json(ApiSuccess::successMessage('Lojas e seus respectivos produtos encontrados!', $stores), 200);
     }
 
     /**
@@ -42,14 +43,7 @@ class StoreController extends Controller{
 
             $newStore = $this->store->create($storeData);
 
-            $data = [
-                'data' => [
-                    'message' => 'Loja cadastrada com sucesso!',
-                    'store' => $newStore
-                ]
-            ];
-
-            return response()->json($data, 201);
+            return response()->json(ApiSuccess::successMessage('Loja cadastrada com sucesso!', $newStore), 201);
         } catch(Exception $e){
             if(config('app.debug')){
                 return response()->json(ApiError::errorMessage($e->getMessage(), 1010), 500);
@@ -66,17 +60,16 @@ class StoreController extends Controller{
      * @return \Illuminate\Http\Response
      */
     public function show($id){
-        $store = $this->store->find($id);
+        $store = $this->store
+                      ->with('products')
+                      ->find($id)
+                      ->paginate(10);
 
         if(!$store){
             return response()->json(ApiError::errorMessage('Nenhuma loja foi encontrada!', 404), 404);
         }
 
-        $data = [
-            'data' => $store
-        ];
-
-        return response()->json($data, 200);
+        return response()->json(ApiSuccess::successMessage('Loja encontrada!', $store), 200);
     }
 
     /**
@@ -86,8 +79,13 @@ class StoreController extends Controller{
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
+    public function update(Request $request, $id){
+        $store = $this->store->find($id);
+
+        if(!$store){
+            return response()->json(ApiError::errorMessage('Nenhuma loja foi encontrada!', 404), 404);
+        }
+
         try{
             $storeData = $request->all();
 
@@ -95,14 +93,7 @@ class StoreController extends Controller{
 
             $store->update($storeData);
 
-            $data = ['data' => 
-                [
-                    'msg' => 'Loja atualizada com sucesso!',
-                    'product' => $store
-                ]
-            ];
-
-            return response()->json($data, 201);
+            return response()->json(ApiSuccess::successMessage('Loja atualizada com sucesso!', $store), 201);
         } catch(Exception $e){
             if(config('app.debug')){
                 return response()->json(ApiError::errorMessage($e->getMessage(), 1011), 500);
@@ -115,11 +106,26 @@ class StoreController extends Controller{
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
-    {
-        //
+    public function destroy($id){
+        $store = $this->store->find($id);
+
+        if(!$store){
+            return response()->json(ApiError::errorMessage('Nenhuma loja foi encontrada!', 404), 404);
+        }
+
+        try{
+            $store->delete();
+
+            return response()->json(ApiSuccess::successMessage('Loja excluida com sucesso!', $store), 200);
+        } catch(Exception $e){
+            if(config('app.debug')){
+                return response()->json(ApiError::errorMessage($e->getMessage(), 1012), 500);
+            }
+
+            return response()->json(ApiError::errorMessage('Erro ao deletar a loja!', 1012), 500);
+        }
     }
 }
