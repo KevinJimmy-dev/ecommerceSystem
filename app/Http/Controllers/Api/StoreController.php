@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Api\ApiError;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreRequest;
 use App\Models\Store;
+use Exception;
 use Illuminate\Http\Request;
 
 class StoreController extends Controller{
@@ -33,9 +36,27 @@ class StoreController extends Controller{
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        //
+    public function store(Request $request){
+        try{
+            $storeData = $request->all();
+
+            $newStore = $this->store->create($storeData);
+
+            $data = [
+                'data' => [
+                    'message' => 'Loja cadastrada com sucesso!',
+                    'store' => $newStore
+                ]
+            ];
+
+            return response()->json($data, 201);
+        } catch(Exception $e){
+            if(config('app.debug')){
+                return response()->json(ApiError::errorMessage($e->getMessage(), 1010));
+            } 
+
+            return response()->json(ApiError::errorMessage('Erro ao cadastrar uma nova loja!', 500), 500);
+        }
     }
 
     /**
@@ -48,13 +69,7 @@ class StoreController extends Controller{
         $store = $this->store->find($id);
 
         if(!$store){
-            $data = [
-                'data' => [
-                    'message' => 'Nenhuma loja foi encontrada!'
-                ]
-            ];
-
-            return response()->json($data, 404);
+            return response()->json(ApiError::errorMessage('Nenhuma loja foi encontrada!', 404), 404);
         }
 
         $data = [
