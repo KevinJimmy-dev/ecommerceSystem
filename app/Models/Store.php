@@ -9,12 +9,15 @@ class Store extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'name',
-        'description'
-    ];
+    protected $fillable = ['user_id', 'name', 'description'];
 
-    public function products(){
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function products()
+    {
         return $this->hasMany(Product::class);
     }
 }
