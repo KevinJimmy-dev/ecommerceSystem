@@ -22,12 +22,16 @@ class ProductController extends Controller{
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(){
-        $products = $this->product
-                       ->with('store')
-                       ->paginate(10);
+    public function index()
+    {
+        $products = $this->product->with('store')
+            ->paginate(10)
+        ;
 
-        return response()->json(ApiSuccess::successMessage('Produtos e suas respectivas lojas encontradas!', $products), 200);
+        return response()->json(
+            ApiSuccess::successMessage('Produtos e suas respectivas lojas encontradas!', $products), 
+            200
+        );
     }
 
     /**
@@ -36,19 +40,35 @@ class ProductController extends Controller{
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request){
+    public function store(Request $request)
+    {
+        $request->validate([
+            'store_id' => 'required|exists:stores,id',
+            'name' => 'required',   
+            'description' => 'nullable',
+            'price' => 'required',
+            'stock' => 'required',
+        ]);
+
         try{
-            $productData = $request->all();
+            $newProduct = $this->product->create($request->all());
 
-            $newProduct = $this->product->create($productData);
-
-            return response()->json(ApiSuccess::successMessage('Produto cadastrado com sucesso!', $newProduct), 201);
+            return response()->json(
+                ApiSuccess::successMessage('Produto cadastrado com sucesso!', $newProduct),
+                 201
+            );
         } catch(Exception $e){
             if(config('app.debug')){
-                return response()->json(ApiError::errorMessage($e->getMessage(), 2010), 500);
+                return response()->json(
+                    ApiError::errorMessage($e->getMessage(), 2010),
+                     500
+                );
             } 
 
-            return response()->json(ApiError::errorMessage('Erro ao cadastrar um novo produto!', 500), 500);
+            return response()->json(
+                ApiError::errorMessage('Erro ao cadastrar um novo produto!', 500),
+                 500
+            );
         }
     }
 
@@ -58,16 +78,23 @@ class ProductController extends Controller{
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id){
-        $product = $this->product
-                      ->with('store')
-                      ->find($id);
+    public function show($id)
+    {
+        $product = $this->product->with('store')
+            ->find($id)
+        ;
 
-        if(!$product){
-            return response()->json(ApiError::errorMessage('Nenhum produto foi encontrado!', 404), 404);
+        if (!$product) {
+            return response()->json(
+                ApiError::errorMessage('Nenhum produto foi encontrado!', 404),
+                 404
+            );
         }
 
-        return response()->json(ApiSuccess::successMessage('Produto encontrado!', $product), 200);
+        return response()->json(
+            ApiSuccess::successMessage('Produto encontrado!', $product),
+             200
+        );
     }
 
     /**
@@ -77,25 +104,44 @@ class ProductController extends Controller{
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id){
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'store_id' => 'required|exists:stores,id',
+            'name' => 'required',   
+            'description' => 'nullable',
+            'price' => 'required',
+            'stock' => 'required',
+        ]);
+
         $product = $this->product->find($id);
 
-        if(!$product){
-            return response()->json(ApiError::errorMessage('Nenhum produto foi encontrado!', 404), 404);
+        if (!$product) {
+            return response()->json(
+                ApiError::errorMessage('Nenhum produto foi encontrado!', 404),
+                 404
+            );
         }
 
         try{
-            $productData = $request->all();
+            $product->update($request->all());
 
-            $product->update($productData);
-
-            return response()->json(ApiSuccess::successMessage('Produto atualizado com sucesso!', $product), 201);
+            return response()->json(
+                ApiSuccess::successMessage('Produto atualizado com sucesso!', $product),
+                 201
+            );
         } catch(Exception $e){
-            if(config('app.debug')){
-                return response()->json(ApiError::errorMessage($e->getMessage(), 1011), 500);
+            if (config('app.debug')) {
+                return response()->json(
+                    ApiError::errorMessage($e->getMessage(), 1011),
+                     500
+                );
             }
 
-            return response()->json(ApiError::errorMessage('Erro ao atualizar o produto!', 2011), 500);
+            return response()->json(
+                ApiError::errorMessage('Erro ao atualizar o produto!', 2011),
+                 500
+            );
         }
     }
 
@@ -105,23 +151,36 @@ class ProductController extends Controller{
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id){
+    public function destroy($id)
+    {
         $product = $this->product->find($id);
 
-        if(!$product){
-            return response()->json(ApiError::errorMessage('Nenhum produto foi encontrado!', 404), 404);
+        if (!$product) {
+            return response()->json(
+                ApiError::errorMessage('Nenhum produto foi encontrado!', 404),
+                 404
+            );
         }
 
         try{
             $product->delete();
 
-            return response()->json(ApiSuccess::successMessage('Produto excluido com sucesso!', $product), 200);
-        } catch(Exception $e){
+            return response()->json(
+                ApiSuccess::successMessage('Produto excluido com sucesso!', $product),
+                 200
+            );
+        } catch(Exception $e) {
             if(config('app.debug')){
-                return response()->json(ApiError::errorMessage($e->getMessage(), 2012), 500);
+                return response()->json(
+                    ApiError::errorMessage($e->getMessage(), 2012),
+                    500
+                );
             }
 
-            return response()->json(ApiError::errorMessage('Erro ao deletar o produto!', 2012), 500);
+            return response()->json(
+                ApiError::errorMessage('Erro ao deletar o produto!', 2012),
+                500
+            );
         }
     }
 }
