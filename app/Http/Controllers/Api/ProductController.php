@@ -23,11 +23,14 @@ class ProductController extends Controller{
      * @return \Illuminate\Http\Response
      */
     public function index(){
-        $products = $this->product
-                       ->with('store')
-                       ->paginate(10);
+        $products = $this->product->with('store')
+            ->paginate(10)
+        ;
 
-        return response()->json(ApiSuccess::successMessage('Produtos e suas respectivas lojas encontradas!', $products), 200);
+        return response()->json(
+            ApiSuccess::successMessage('Produtos e suas respectivas lojas encontradas!', $products), 
+            200
+        );
     }
 
     /**
