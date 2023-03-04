@@ -97,4 +97,23 @@ class ProductControllerTest extends TestCase
             ]
         ])->assertStatus(201);
     }
+
+    # docker-compose exec api php artisan test --filter=ProductControllerTest::test_destroy
+    public function test_destroy()
+    {
+        User::factory()->count(2)->has(
+            Store::factory()->count(1)->has(
+                Product::factory()->count(1)
+            )
+        )->create();
+
+        $response = $this->delete('api/products/1',);
+
+        $response->assertExactJson([
+            "data" => [
+                "message" => $response['data']['message'],
+                "collection" => $response['data']['collection']
+            ]
+        ])->assertStatus(200);
+    }
 }

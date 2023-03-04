@@ -151,23 +151,36 @@ class ProductController extends Controller{
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id){
+    public function destroy($id)
+    {
         $product = $this->product->find($id);
 
-        if(!$product){
-            return response()->json(ApiError::errorMessage('Nenhum produto foi encontrado!', 404), 404);
+        if (!$product) {
+            return response()->json(
+                ApiError::errorMessage('Nenhum produto foi encontrado!', 404),
+                 404
+            );
         }
 
         try{
             $product->delete();
 
-            return response()->json(ApiSuccess::successMessage('Produto excluido com sucesso!', $product), 200);
-        } catch(Exception $e){
+            return response()->json(
+                ApiSuccess::successMessage('Produto excluido com sucesso!', $product),
+                 200
+            );
+        } catch(Exception $e) {
             if(config('app.debug')){
-                return response()->json(ApiError::errorMessage($e->getMessage(), 2012), 500);
+                return response()->json(
+                    ApiError::errorMessage($e->getMessage(), 2012),
+                    500
+                );
             }
 
-            return response()->json(ApiError::errorMessage('Erro ao deletar o produto!', 2012), 500);
+            return response()->json(
+                ApiError::errorMessage('Erro ao deletar o produto!', 2012),
+                500
+            );
         }
     }
 }
