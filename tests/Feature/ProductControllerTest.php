@@ -72,4 +72,29 @@ class ProductControllerTest extends TestCase
             ]
         ])->assertStatus(200);
     }
+
+    # docker-compose exec api php artisan test --filter=ProductControllerTest::test_update
+    public function test_update()
+    {
+        User::factory()->count(2)->has(
+            Store::factory()->count(1)->has(
+                Product::factory()->count(1)
+            )
+        )->create();
+
+        $response = $this->put('api/products/1', [
+            "store_id" => 1,
+            "name" => "test product",
+            "description" => "test product description",
+            "price" => 2,
+            "stock" => 100
+        ]);
+
+        $response->assertExactJson([
+            "data" => [
+                "message" => $response['data']['message'],
+                "collection" => $response['data']['collection']
+            ]
+        ])->assertStatus(201);
+    }
 }

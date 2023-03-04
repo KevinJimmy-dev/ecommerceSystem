@@ -104,25 +104,44 @@ class ProductController extends Controller{
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id){
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'store_id' => 'required|exists:stores,id',
+            'name' => 'required',   
+            'description' => 'nullable',
+            'price' => 'required',
+            'stock' => 'required',
+        ]);
+
         $product = $this->product->find($id);
 
-        if(!$product){
-            return response()->json(ApiError::errorMessage('Nenhum produto foi encontrado!', 404), 404);
+        if (!$product) {
+            return response()->json(
+                ApiError::errorMessage('Nenhum produto foi encontrado!', 404),
+                 404
+            );
         }
 
         try{
-            $productData = $request->all();
+            $product->update($request->all());
 
-            $product->update($productData);
-
-            return response()->json(ApiSuccess::successMessage('Produto atualizado com sucesso!', $product), 201);
+            return response()->json(
+                ApiSuccess::successMessage('Produto atualizado com sucesso!', $product),
+                 201
+            );
         } catch(Exception $e){
-            if(config('app.debug')){
-                return response()->json(ApiError::errorMessage($e->getMessage(), 1011), 500);
+            if (config('app.debug')) {
+                return response()->json(
+                    ApiError::errorMessage($e->getMessage(), 1011),
+                     500
+                );
             }
 
-            return response()->json(ApiError::errorMessage('Erro ao atualizar o produto!', 2011), 500);
+            return response()->json(
+                ApiError::errorMessage('Erro ao atualizar o produto!', 2011),
+                 500
+            );
         }
     }
 
