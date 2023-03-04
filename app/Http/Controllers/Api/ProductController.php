@@ -22,7 +22,8 @@ class ProductController extends Controller{
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(){
+    public function index()
+    {
         $products = $this->product->with('store')
             ->paginate(10)
         ;
@@ -39,19 +40,35 @@ class ProductController extends Controller{
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request){
+    public function store(Request $request)
+    {
+        $request->validate([
+            'store_id' => 'required|exists:stores,id',
+            'name' => 'required',   
+            'description' => 'nullable',
+            'price' => 'required',
+            'stock' => 'required',
+        ]);
+
         try{
-            $productData = $request->all();
+            $newProduct = $this->product->create($request->all());
 
-            $newProduct = $this->product->create($productData);
-
-            return response()->json(ApiSuccess::successMessage('Produto cadastrado com sucesso!', $newProduct), 201);
+            return response()->json(
+                ApiSuccess::successMessage('Produto cadastrado com sucesso!', $newProduct),
+                 201
+            );
         } catch(Exception $e){
             if(config('app.debug')){
-                return response()->json(ApiError::errorMessage($e->getMessage(), 2010), 500);
+                return response()->json(
+                    ApiError::errorMessage($e->getMessage(), 2010),
+                     500
+                );
             } 
 
-            return response()->json(ApiError::errorMessage('Erro ao cadastrar um novo produto!', 500), 500);
+            return response()->json(
+                ApiError::errorMessage('Erro ao cadastrar um novo produto!', 500),
+                 500
+            );
         }
     }
 
