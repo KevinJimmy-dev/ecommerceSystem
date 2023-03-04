@@ -78,16 +78,23 @@ class ProductController extends Controller{
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id){
-        $product = $this->product
-                      ->with('store')
-                      ->find($id);
+    public function show($id)
+    {
+        $product = $this->product->with('store')
+            ->find($id)
+        ;
 
-        if(!$product){
-            return response()->json(ApiError::errorMessage('Nenhum produto foi encontrado!', 404), 404);
+        if (!$product) {
+            return response()->json(
+                ApiError::errorMessage('Nenhum produto foi encontrado!', 404),
+                 404
+            );
         }
 
-        return response()->json(ApiSuccess::successMessage('Produto encontrado!', $product), 200);
+        return response()->json(
+            ApiSuccess::successMessage('Produto encontrado!', $product),
+             200
+        );
     }
 
     /**
